@@ -6,7 +6,7 @@ const server = createServer(app)
 const io = new Server(server,{
   pingTimeout : 5 * 60 * 1000 ,
   cors : {
-    origin : "http://localhost:5173"
+    origin : ["http://localhost:5173", "bidverse-three.vercel.app" ]
   }
 })
 
