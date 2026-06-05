@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/lib/baseUrl";
+import { BASE_URL, SOCKET_URL } from "@/lib/baseUrl";
 import axios from "axios";
 import { data } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -64,7 +64,7 @@ export const useAuthStore = create(persist((set, get) => ({
   connectSocket: () => {
     const { authUser } = get() ;
     if (!authUser || get().socket?.connected) return ;
-    const socket = io("http://localhost:5001") ;
+    const socket = io(SOCKET_URL) ;
     socket.emit("setup", authUser) ;
     socket.on("connected", () => set({ socket: socket })) ;
   }
