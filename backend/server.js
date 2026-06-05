@@ -28,8 +28,8 @@ app.use("/api/bid",bidRoutes)
 
 
 startCronJobs()
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 8000 
+await connectDB() ;
 server.listen(port,()=>{
-  connectDB() ;
   console.log("server is listening on port : "+ port) 
 })

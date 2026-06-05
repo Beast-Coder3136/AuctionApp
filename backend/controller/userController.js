@@ -23,18 +23,18 @@ export const register = async (req, res) => {
       })
     }
     if (!req.file) {
-      return res.status(400).json({ success : false , message: 'No file uploaded' });
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
     if (!req.file.mimetype.startsWith('image')) {
-      return res.status(400).json({ success : false , message: 'Only images allowed' });
+      return res.status(400).json({ success: false, message: 'Only images allowed' });
     }
-    const file = req.file 
-    let cloudResponse ;
-    if(file){
-      const fileUri = getDataUri(file) 
-      cloudResponse = cloudinary.uploader.upload(fileUri.content ,{
-        folder : "AuctionApp/avatars"
-      }) 
+    const file = req.file
+    let cloudResponse;
+    if (file) {
+      const fileUri = getDataUri(file)
+      cloudResponse = cloudinary.uploader.upload(fileUri.content, {
+        folder: "AuctionApp/avatars"
+      })
     }
 
     const hashedPassword = await bcrypt.hash(password, 13)
@@ -45,7 +45,7 @@ export const register = async (req, res) => {
       role,
     })
 
-    if(cloudResponse){
+    if (cloudResponse) {
       user.avatar = (await cloudResponse).secure_url
     }
 
@@ -54,6 +54,9 @@ export const register = async (req, res) => {
     return res.status(200)
       .cookie("token", token, {
         maxAge: 1 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true,
+        sameSite: "None"
       })
       .json({
         message: "You are now registered",
@@ -97,6 +100,9 @@ export const login = async (req, res) => {
     return res.status(200)
       .cookie("token", token, {
         maxAge: 1 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true,
+        sameSite: "None"
       })
       .json({
         message: "You are now logged In",
