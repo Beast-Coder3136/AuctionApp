@@ -14,7 +14,7 @@ export const searchAuction = async (req, res) => {
       : {};
 
     const pageNo = Number(req.query.page) || 1
-    const limit = 5
+    const limit = Number(req.query.limit) || 10 
     const skip = (pageNo - 1) * limit
 
 

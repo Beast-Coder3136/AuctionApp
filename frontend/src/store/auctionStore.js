@@ -2,6 +2,7 @@ import { BASE_URL } from "@/lib/baseUrl";
 import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { useAuthStore } from "./authStore";
 
 export const useAuctionStore = create((set,get)=>({
 
@@ -13,17 +14,19 @@ export const useAuctionStore = create((set,get)=>({
   totalPages : 1 ,
   getAllAuctions : async(searchQuery,currentPage)=>{
     try {
-      const res = await axios.get(`${BASE_URL}/auction?search=${searchQuery}&page=${currentPage}`,{withCredentials : true})
+      const res = await axios.get(`${BASE_URL}/auction?search=${searchQuery}&page=${currentPage}&limit=${10}`,{withCredentials : true})
       console.log(res.data)
       set({auctions : res.data.auctions})
       set( {totalPages : res.data.totalPages})
     } catch (error) {
       let err = error?.response?.data?.message ? error?.response?.data?.message : "Somethin went wrong"
-      let { authorized } = error?.response?.data
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized=== false ){
+        logout()
+      }
       toast.error(err)
-      
     }     
-      
   },
   getSellerAuctions : async()=>{
     try {
@@ -32,6 +35,11 @@ export const useAuctionStore = create((set,get)=>({
       set({sellerAuctions : res.data.auctions})
     } catch (error) {
       console.log(error.response)
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized=== false ){
+        logout()
+      }
     }
   } ,
   getAuctionById : async(id)=>{
@@ -40,6 +48,11 @@ export const useAuctionStore = create((set,get)=>({
       set({auctionById : res.data.auction})
      } catch (error) {
       console.log(error.response)
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized=== false ){
+        logout()
+      }
      }
   },
   createAuction : async(data)=>{
@@ -54,6 +67,11 @@ export const useAuctionStore = create((set,get)=>({
       toast.success("New Auction Created")
     } catch (error) {
       let err = error?.response?.data?.message ? error?.response?.data?.message : "Somethin went wrong"
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized=== false ){
+        logout()
+      }
       toast.error(err)
     }
   },
@@ -97,6 +115,11 @@ export const useAuctionStore = create((set,get)=>({
       set({bids : res.data.bids})
     } catch (error) {
       let err = error?.response?.data?.message ? error?.response?.data?.message : "Somethin went wrong"
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized=== false ){
+        logout()
+      }
       toast.error(err)
     }
   } ,
@@ -106,6 +129,11 @@ export const useAuctionStore = create((set,get)=>({
       set({searchedAuctions : res.data.auctions})
     } catch (error) {
       let err = error?.response?.data?.message ? error?.response?.data?.message : "Somethin went wrong"
+      let authorized = error?.response?.data?.authorized 
+      const { logout } = useAuthStore.getState()
+      if(authorized && authorized=== false ){
+        logout()
+      }
       toast.error(err)
     }
   },

@@ -53,7 +53,7 @@ export const useAuthStore = create(persist((set, get) => ({
       toast.success("You are Logged Out")
     } catch (error) {
       let err = error?.response?.data?.message ? error?.response?.data?.message : "Somethin went wrong"
-      toast.error(err)
+
     }
     finally {
       set({authUser : null}) 
