@@ -83,6 +83,10 @@ export default function AuctionCard({ item, onView, onEdit }) {
             <span className="font-semibold text-[#0A1628]">Starting Bid:</span>
             <span className="text-[#0A1628] font-bold">${item?.startingBid}</span>
           </div>
+          <div className="flex items-center gap-2 mt-1 pt-2 border-t border-slate-100">
+            <span className="font-semibold text-[#0A1628]">Current Bid:</span>
+            <span className="text-[#0A1628] font-bold">${item?.currentBid}</span>
+          </div>
         </div>
 
         <div className="mt-auto pt-2 flex gap-2">

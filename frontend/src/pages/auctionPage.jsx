@@ -32,19 +32,17 @@ export default function AuctionPage() {
     if (!socket) return
 
     const handleNewBid = (newBid) => {
-      let newBids = [...bids]
-      let idx = newBids.findIndex((bid) => bid._id === newBid._id)
+      if(newBid?.bidder?._id === authUser?._id) return 
+      console.log(newBid)
+      let idx = bids.findIndex((bid) => bid._id === newBid._id)
       if (idx === -1) {
-        newBids.unshift(newBid)
-        setBids(newBids)
+        setBids([newBid,...bids])
       }
       else {
-        newBids.splice(idx, 1)
-        newBids.unshift(newBid)
-        setBids(newBids)
+        bids.splice(idx, 1)
+        setBids([ newBid,...bids])
       }
-      let newAuction = newBid.auction
-      setAuction(newAuction)
+      setAuction(newBid.auction)
     }
 
     const handleLiveAuctions = (liveAuctions) => {
@@ -66,7 +64,7 @@ export default function AuctionPage() {
       socket.off("liveAuctions", handleLiveAuctions);
       socket.off("endedAuctions", handleEndedAuctions);
     };
-  },[socket,bids,auction])
+  },[socket,bids])
 
 
   const handlePlaceBid = async () => {
@@ -75,9 +73,8 @@ export default function AuctionPage() {
       auctionId: id,
       amount: bidAmount
     };
-    let bid = await placeBid(data);
-    console.log(bid)
-    socket?.emit("new-bid", bid)
+    placeBid(data);
+    
     setBidAmount("");
   };
 

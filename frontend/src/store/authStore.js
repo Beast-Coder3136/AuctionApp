@@ -64,7 +64,9 @@ export const useAuthStore = create(persist((set, get) => ({
   connectSocket: () => {
     const { authUser } = get() ;
     if (!authUser || get().socket?.connected) return ;
-    const socket = io(SOCKET_URL) ;
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket"]
+    }) ;
     socket.emit("setup", authUser) ;
     socket.on("connected", () => set({ socket: socket })) ;
   }

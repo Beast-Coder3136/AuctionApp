@@ -19,6 +19,7 @@ export default function MessageBox({ auctionId }) {
   useEffect(() => {
     if (!socket) return
     const handleNewMessage = (newMessage) => {
+      if(newMessage?.sender?._id === authUser?._id) return 
       let updatedMessages = [...messages, newMessage]
       setMessages(updatedMessages)
     }
@@ -29,8 +30,7 @@ export default function MessageBox({ auctionId }) {
   },[socket,messages])
 
   const handleSendMessage = async () => {
-    const message = await sendMessage({ auctionId, content })
-    socket?.emit("new-message", message)
+    await sendMessage({ auctionId, content })
     setContent("")
   }
 

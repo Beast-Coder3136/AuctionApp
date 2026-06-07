@@ -23,8 +23,9 @@ import AuctionCard from "@/components/auction/auctionCard";
 import { io } from "socket.io-client";
 import { BASE_URL } from "@/lib/baseUrl";
 import { useAuthStore } from "@/store/authStore";
+import PaginationComponent from "@/components/layouts/pagination";
 
-
+const PRODUCTS_PER_PAGE = 4 
 export default function SellerPage() {
   const { createAuction, sellerAuctions, getSellerAuctions, updateAuction, setSellerAuctions } = useAuctionStore();
   const { authUser, connectSocket, socket } = useAuthStore()
@@ -44,8 +45,17 @@ export default function SellerPage() {
     connectSocket()
   }, []);
 
+
   useEffect(() => {
     if (!socket) return
+    const handleNewBid = (newBid) => {
+      let idx = sellerAuctions.findIndex((a) => a._id === newBid?.auction?._id)
+      if (idx) {
+        let updatedAuctions = [...sellerAuctions]
+        updatedAuctions[idx] = newBid.auction
+        setSellerAuctions(updatedAuctions)
+      }
+    }
 
     const handleLiveAuctions = (liveAuctions) => {
       let updatedAuctions = sellerAuctions.map((a) => {
@@ -67,10 +77,12 @@ export default function SellerPage() {
       setSellerAuctions(updatedAuctions)
     }
     socket?.on("liveAuctions", handleLiveAuctions)
-    socket?.on("endedAuctions",handleEndedAuctions)
+    socket?.on("endedAuctions", handleEndedAuctions)
+    socket?.on("new-bid-recieve", handleNewBid)
     return () => {
       socket.off("liveAuctions", handleLiveAuctions);
       socket.off("endedAuctions", handleEndedAuctions);
+      socket?.on("new-bid-recieve", handleNewBid)
     };
   }, [socket, sellerAuctions])
 
@@ -132,13 +144,9 @@ export default function SellerPage() {
 
   let liveAuctions = sellerAuctions.filter((a) => a?.status === "Live");
   let upcomingAuctions = sellerAuctions.filter((a) => a?.status === "Upcoming");
-  let endedAuctions = sellerAuctions.filter(
-    (a) => a?.status === "Ended" || a?.status === "Completed"
-  );
-
+  let endedAuctions = sellerAuctions.filter((a) => a?.status === "Ended" || a?.status === "Completed");
   const formState = { title, description, startingBid, startTime, endTime };
   const setters = { setTitle, setDescription, setStartingBid, setStartTime, setEndTime, handleImage };
-
 
   return (
     <div className="max-w-7xl mx-auto  px-6 py-8 flex flex-col ">
@@ -238,7 +246,6 @@ export default function SellerPage() {
                 />
               ))}
             </div>
-
           </div>
         )}
         {/* Empty State */}

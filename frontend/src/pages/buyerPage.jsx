@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom"
 import { Clock } from "lucide-react"
 import { useAuthStore } from "@/store/authStore"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import PaginationComponent from "@/components/layouts/pagination"
 
 export default function BuyerPage() {
   const router = useNavigate()
   const { auctions, getAllAuctions, setAuctions, totalPages } = useAuctionStore()
   const [filterValue, setFilterValue] = useState("All")
-  const { connectSocket, socket } = useAuthStore()
+  const { connectSocket, socket , authUser} = useAuthStore()
   const [currentPage, setCurrentPage] = useState(1)
   useEffect(() => {
     getAllAuctions("", currentPage)
@@ -49,12 +49,25 @@ export default function BuyerPage() {
       );
       setAuctions(updatedAuctions);
     };
+    const handleNewBid = (newBid)=>{
+      console.log(newBid)
+      if(newBid?.bidder?._id === authUser?._id) return 
+      let index = auctions.findIndex((auction)=>auction?._id===newBid?.auction?._id)
+      if(index){
+        let updatedAuctions = [...auctions]
+        updatedAuctions[index] = newBid.auction
+        setAuctions(updatedAuctions)
+      }
+    }
+
     socket.on("liveAuctions", handleLiveAuctions);
     socket.on("endedAuctions", handleEndedAuctions);
+    socket.on("new-bid-recieve",handleNewBid)
 
     return () => {
       socket.off("liveAuctions", handleLiveAuctions);
       socket.off("endedAuctions", handleEndedAuctions);
+      socket.off("new-bid-recieve",handleNewBid)
     };
   }, [socket, auctions])
 
@@ -72,38 +85,6 @@ export default function BuyerPage() {
     const date = new Date(time);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-
-  const getPageNumbers = () => {
-    const pages = [];
-    console.log("Running Page Number")
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-
-      if (currentPage > 3) {
-        pages.push("...");
-      }
-
-      for (
-        let i = Math.max(2, currentPage - 1);
-        i <= Math.min(totalPages - 1, currentPage + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-
-      if (currentPage < totalPages - 2) {
-        pages.push("...");
-      }
-
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
 
   return (
     <div className="max-w-7xl mx-auto p-6 flex flex-col gap-8  min-h-screen">
@@ -182,48 +163,7 @@ export default function BuyerPage() {
           </div>
         )}
       </div>
-
-
-      <Pagination className="mt-8">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 1) {
-                  setCurrentPage(currentPage - 1);
-                }
-              }}
-            />
-          </PaginationItem>
-
-          {getPageNumbers().map((page, index) => (
-            <PaginationItem key={index}>
-              {page === "..." ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  isActive={currentPage === page}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </PaginationLink>
-              )}
-            </PaginationItem>
-          ))}
-
-          <PaginationItem>
-            <PaginationNext
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPages) {
-                  setCurrentPage(currentPage + 1);
-                }
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <PaginationComponent currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} />
 
     </div>
   )

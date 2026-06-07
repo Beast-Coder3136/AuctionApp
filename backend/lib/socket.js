@@ -22,10 +22,10 @@ io.on("connection",(socket)=>{
   })
   socket.on("new-message",(newMessage)=>{
     const auctionId = newMessage?.auction
-    socket.in(auctionId).emit("new-message-recieve",newMessage)
+    socket.to(auctionId).emit("new-message-recieve",newMessage)
   })
   socket.on("new-bid",(bid)=>{
-    socket.in(bid?.auction?._id).emit("new-bid-recieve",bid)
+    socket.to(bid?.auction?._id).emit("new-bid-recieve",bid)
   })
  
 })

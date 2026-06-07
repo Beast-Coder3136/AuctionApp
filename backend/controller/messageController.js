@@ -1,3 +1,4 @@
+import { io } from '../lib/socket.js'
 import Message from '../models/message.js'
 import { getAuctionById } from './auctionController.js'
 
@@ -32,7 +33,7 @@ export const createMessage = async (req, res) => {
       sender: req.user.id
     })
     await newMessage.populate("sender", "-password")
-
+    io.to(auctionId).emit("new-message-recieve",newMessage)
     return res.status(202).json({
       success: true,
       message: newMessage

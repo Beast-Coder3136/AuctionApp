@@ -1,3 +1,4 @@
+import { io } from '../lib/socket.js'
 import Auction from '../models/auction.js'
 import Bid from '../models/bid.js'
 
@@ -68,6 +69,7 @@ export const placeBid = async (req, res) => {
     await auction.save()
     await bid.populate("bidder", "-password")
     await bid.populate("auction")
+    io.to(auctionId).emit("new-bid-recieve",bid)
     return res.status(202).json({
       success: true,
       bid,
